@@ -10,7 +10,7 @@ AGENT_ALIAS = os.getenv("AGENT_ALIAS")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Manage Bedrock agents.")
-    parser.add_argument("action", choices=["create", "delete", "update"], help="Action to perform (prepare, delete, or list agents).")
+    parser.add_argument("action", choices=["create", "delete", "update", "list"], help="Action to perform (prepare, delete, or list agents).")
     parser.add_argument("agent_id", nargs='?', help="The ID of the agent to prepare or delete. Not required for listing.")
     parser.add_argument("--name", help="The name of the agent to create.", required=False)
     parser.add_argument("--agentid", help="The ID of the agent to update.", required=False)
