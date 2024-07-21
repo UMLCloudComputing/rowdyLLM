@@ -1,40 +1,27 @@
 
-# Welcome to your CDK Python project!
+# Welcome to the RowdyLLM project!
 
-This is a blank project for CDK development with Python.
+This is a subproject of RowdyBot, that attempts to separate out the LLM component of Rowdybot, due to the inherent complexities of setting up Amazon Bedrock Agents.
+The goal of this project is to allow the developer to setup the Amazon Bedrock Agent with just one command.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
-
-```
-$ python3 -m venv .venv
-```
-
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
+Install the requirements for this project here.
 ```
 $ pip install -r requirements.txt
+```
+
+Now you need to setup the proper environmental variables. This can be done by creating a .env file in your root directory.
+As of now, the only two you need are the Pinecone Vector Index, API Key, and the name of your CloudFormation Stack.
+
+First you need to create a Pinecone Vector Index. Copy out the Vector Database URL and paste in the the .env file.
+The Pinecone API Key must be stored in the AWS Secrets Manager with the keyname as "apiKey" and the secret value as your pinecone API Key. Paste the ARN of the secret in the .env file.
+
+You can name your APP_NAME whatever you wish, but be careful not to nameclash with your teammates' cloudformation app names.
+```
+PINECONE_URL = <Pinecone Vector Database URL>
+PINECONE_API_KEY = <ARN of AWS Secret that store your Pinecone API Key>
+APP_NAME=<Cloudformation App Name>
 ```
 
 At this point you can now synthesize the CloudFormation template for this code.
