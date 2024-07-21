@@ -42,74 +42,6 @@ class CdkStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
         self.agent_name = kwargs.get('agent_name')
-        
-        cfn_role = iam.CfnRole(self, "AmazonBedrockAgentRole",
-            assume_role_policy_document={
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Effect": "Allow",
-                        "Principal": {"Service": "bedrock.amazonaws.com"},
-                        "Action": "sts:AssumeRole",
-                    }
-                ],
-            },
-            policies=[
-                {
-                    "policyName": "AmazonBedrockAgentPolicy",
-                    "policyDocument": {
-                        "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Effect": "Allow",
-                                "Action": "bedrock:InvokeModel",
-                                "Resource": "*",
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": "bedrock:Retrieve",
-                                "Resource": "*",
-                            }
-                        ],
-                    },
-                }
-            ],
-            role_name=f"AmazonBedrockAgentRole_{construct_id}",
-        )
-
-        cfn_agent = bedrock.CfnAgent(self, "Agent",
-            agent_name=f"MyAgent{construct_id}",
-            description='Production',
-            agent_resource_role_arn= cfn_role.attr_arn,
-            auto_prepare=True,
-            foundation_model="amazon.titan-text-premier-v1:0",
-            instruction="You are a chatbot for the University of Massachusetts Lowell. Your goal is to answer questions to the best of your ability. Please ask the user to clarify if necessary",
-            prompt_override_configuration=bedrock.CfnAgent.PromptOverrideConfigurationProperty(
-                prompt_configurations=[
-                    bedrock.CfnAgent.PromptConfigurationProperty(
-                        base_prompt_template=base_prompt_template,
-                        inference_configuration=bedrock.CfnAgent.InferenceConfigurationProperty(
-                            maximum_length=2048,
-                            temperature=0,
-                            top_p=0.1,
-                        ),
-                        prompt_creation_mode="OVERRIDDEN",
-                        prompt_type="ORCHESTRATION"
-                    ),
-
-                    bedrock.CfnAgent.PromptConfigurationProperty(
-                        base_prompt_template=kb_template,
-                        inference_configuration=bedrock.CfnAgent.InferenceConfigurationProperty(
-                            maximum_length=2048,
-                            temperature=0,
-                            top_p=0.1,
-                        ),
-                        prompt_creation_mode="OVERRIDDEN",
-                        prompt_type="KNOWLEDGE_BASE_RESPONSE_GENERATION"
-                    )
-                ],
-            ),
-        )
 
         bucket=s3.Bucket(
             self, 
@@ -235,4 +167,79 @@ class CdkStack(Stack):
             #         )
             #     )
             # )
+        )
+
+        cfn_role = iam.CfnRole(self, "AmazonBedrockAgentRole",
+            assume_role_policy_document={
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"Service": "bedrock.amazonaws.com"},
+                        "Action": "sts:AssumeRole",
+                    }
+                ],
+            },
+            policies=[
+                {
+                    "policyName": "AmazonBedrockAgentPolicy",
+                    "policyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": "bedrock:InvokeModel",
+                                "Resource": "*",
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": "bedrock:Retrieve",
+                                "Resource": "*",
+                            }
+                        ],
+                    },
+                }
+            ],
+            role_name=f"AmazonBedrockAgentRole_{construct_id}",
+        )
+
+        cfn_agent = bedrock.CfnAgent(self, "Agent",
+            agent_name=f"MyAgent{construct_id}",
+            description='Production',
+            agent_resource_role_arn= cfn_role.attr_arn,
+            auto_prepare=True,
+            foundation_model="amazon.titan-text-premier-v1:0",
+            instruction="You are a chatbot for the University of Massachusetts Lowell. Your goal is to answer questions to the best of your ability. Please ask the user to clarify if necessary",
+            knowledge_bases=[bedrock.CfnAgent.AgentKnowledgeBaseProperty(
+                description="Pull information from here when user asks about the University of Massachusetts Lowell",
+                knowledge_base_id=cfn_knowledge_base.attr_knowledge_base_id,
+
+                # the properties below are optional
+                # knowledge_base_state="knowledgeBaseState"
+            )],
+            prompt_override_configuration=bedrock.CfnAgent.PromptOverrideConfigurationProperty(
+                prompt_configurations=[
+                    bedrock.CfnAgent.PromptConfigurationProperty(
+                        base_prompt_template=base_prompt_template,
+                        inference_configuration=bedrock.CfnAgent.InferenceConfigurationProperty(
+                            maximum_length=2048,
+                            temperature=0,
+                            top_p=0.1,
+                        ),
+                        prompt_creation_mode="OVERRIDDEN",
+                        prompt_type="ORCHESTRATION"
+                    ),
+
+                    bedrock.CfnAgent.PromptConfigurationProperty(
+                        base_prompt_template=kb_template,
+                        inference_configuration=bedrock.CfnAgent.InferenceConfigurationProperty(
+                            maximum_length=2048,
+                            temperature=0,
+                            top_p=0.1,
+                        ),
+                        prompt_creation_mode="OVERRIDDEN",
+                        prompt_type="KNOWLEDGE_BASE_RESPONSE_GENERATION"
+                    )
+                ],
+            ),
         )
