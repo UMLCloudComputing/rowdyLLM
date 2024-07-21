@@ -3,7 +3,9 @@ from aws_cdk import (
     Stack,
     aws_bedrock as bedrock,
     aws_iam as iam,
-    aws_s3 as s3
+    aws_s3 as s3,
+    aws_lambda as _lambda,
+    aws_apigateway as apigateway
 )
 from constructs import Construct
 import string
@@ -242,4 +244,18 @@ class CdkStack(Stack):
                     )
                 ],
             ),
+        )
+        
+        dockerFunc = _lambda.DockerImageFunction(
+            scope=self,
+            id=f"ID{construct_id}",
+            function_name=construct_id,
+            code=_lambda.DockerImageCode.from_image_asset(
+                directory="src"
+            ),
+        )
+
+        api = apigateway.LambdaRestApi(self, f"API{construct_id}",
+            handler=dockerFunc,
+            proxy=True,
         )
