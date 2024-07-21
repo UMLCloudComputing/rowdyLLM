@@ -157,6 +157,15 @@ class CdkStack(Stack):
                                 "Action": "secretsmanager:GetSecretValue",
                                 "Resource": "*"
                             },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:GetObject",
+                                    "s3:ListBucket",
+                                    "s3:PutObject"
+                                ],
+                                "Resource": "*"
+                            },
                         ],
                     },
                 }
