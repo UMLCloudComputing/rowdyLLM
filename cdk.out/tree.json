@@ -70,7 +70,21 @@
                 "autoPrepare": true,
                 "description": "Production",
                 "foundationModel": "amazon.titan-text-premier-v1:0",
-                "instruction": "Your identity is Rowdy the Riverhawk. Your job is the answer questions about the University of Massachusetts Lowell"
+                "instruction": "Your identity is Rowdy the Riverhawk. Your job is the answer questions about the University of Massachusetts Lowell",
+                "promptOverrideConfiguration": {
+                  "promptConfigurations": [
+                    {
+                      "basePromptTemplate": "System: A chat between a curious User and an artificial intelligence Bot. The Bot gives helpful, detailed, and polite answers to the User's questions. In this session, the model has access to external functionalities.\nTo assist the user, you can reply to the user or invoke an action. Only invoke actions if relevant to the user request.\n$instruction$\n\nThe following actions are available:$tools$\nModel Instructions:\n$model_instructions$\n$conversation_history$\nUser: $question$\n$thought$ $bot_response$",
+                      "inferenceConfiguration": {
+                        "maximumLength": 2048,
+                        "temperature": 0,
+                        "topP": 0.1
+                      },
+                      "promptCreationMode": "OVERRIDDEN",
+                      "promptType": "ORCHESTRATION"
+                    }
+                  ]
+                }
               }
             },
             "constructInfo": {

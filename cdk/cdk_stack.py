@@ -8,7 +8,6 @@ from constructs import Construct
 import string
 import random
 
-
 def generate_random_string(length):
     letters = string.ascii_letters + string.digits
     return ''.join(random.choice(letters) for _ in range(length))
@@ -58,5 +57,27 @@ class CdkStack(Stack):
             agent_resource_role_arn= cfn_role.attr_arn,
             auto_prepare=True,
             foundation_model="amazon.titan-text-premier-v1:0",
-            instruction="Your identity is Rowdy the Riverhawk. Your job is the answer questions about the University of Massachusetts Lowell"
+            instruction="Your identity is Rowdy the Riverhawk. Your job is the answer questions about the University of Massachusetts Lowell",
+            prompt_override_configuration=bedrock.CfnAgent.PromptOverrideConfigurationProperty(
+                prompt_configurations=[bedrock.CfnAgent.PromptConfigurationProperty(
+                    base_prompt_template='''System: A chat between a curious User and an artificial intelligence Bot. The Bot gives helpful, detailed, and polite answers to the User's questions. In this session, the model has access to external functionalities.
+To assist the user, you can reply to the user or invoke an action. Only invoke actions if relevant to the user request.
+$instruction$
+
+The following actions are available:$tools$
+Model Instructions:
+$model_instructions$
+$conversation_history$
+User: $question$
+$thought$ $bot_response$''',
+                    inference_configuration=bedrock.CfnAgent.InferenceConfigurationProperty(
+                        maximum_length=2048,
+                        temperature=0,
+                        #top_k=0.1,
+                        top_p=0.1,
+                    ),
+                    prompt_creation_mode="OVERRIDDEN",
+                    prompt_type="ORCHESTRATION"
+                )],
+            ),
         )

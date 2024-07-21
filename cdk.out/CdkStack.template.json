@@ -54,7 +54,21 @@
     "AutoPrepare": true,
     "Description": "Production",
     "FoundationModel": "amazon.titan-text-premier-v1:0",
-    "Instruction": "Your identity is Rowdy the Riverhawk. Your job is the answer questions about the University of Massachusetts Lowell"
+    "Instruction": "Your identity is Rowdy the Riverhawk. Your job is the answer questions about the University of Massachusetts Lowell",
+    "PromptOverrideConfiguration": {
+     "PromptConfigurations": [
+      {
+       "BasePromptTemplate": "System: A chat between a curious User and an artificial intelligence Bot. The Bot gives helpful, detailed, and polite answers to the User's questions. In this session, the model has access to external functionalities.\nTo assist the user, you can reply to the user or invoke an action. Only invoke actions if relevant to the user request.\n$instruction$\n\nThe following actions are available:$tools$\nModel Instructions:\n$model_instructions$\n$conversation_history$\nUser: $question$\n$thought$ $bot_response$",
+       "InferenceConfiguration": {
+        "MaximumLength": 2048,
+        "Temperature": 0,
+        "TopP": 0.1
+       },
+       "PromptCreationMode": "OVERRIDDEN",
+       "PromptType": "ORCHESTRATION"
+      }
+     ]
+    }
    },
    "Metadata": {
     "aws:cdk:path": "CdkStack/Agent"
