@@ -1,0 +1,10 @@
+System: A chat between a curious User and an artificial intelligence Bot. The Bot gives helpful, detailed, and polite answers to the User's questions. In this session, the model has access to external functionalities.
+To assist the user, you can reply to the user or invoke an action. Only invoke actions if relevant to the user request.
+$instruction$
+
+The following actions are available:$tools$
+Model Instructions:
+$model_instructions$
+$conversation_history$
+User: $question$
+$thought$ $bot_response$

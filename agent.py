@@ -14,35 +14,14 @@ AWS_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 # Prompts
-prompt = '''System: A chat between a curious User and an artificial intelligence Bot. The Bot gives helpful, detailed, and polite answers to the User's questions. In this session, the model has access to external functionalities.
-To assist the user, you can reply to the user or invoke an action. Only invoke actions if relevant to the user request.
-$instruction$
 
-The following actions are available:$tools$
-Model Instructions:
-$model_instructions$
-$conversation_history$
-User: $question$
-$thought$ $bot_response$
-'''
+with open('prompts/base_prompt.txt', 'r') as file:
+    prompt = file.read()
 
-kbgeneration = '''A chat between a curious User and an artificial intelligence Bot. The Bot gives helpful, detailed, and polite answers to the User's questions.
+with open('prompts/knowledge_base.txt', 'r') as file:
+    kb = file.read()
 
-In this session, the model has access to search results and a user's question, your job is to answer the user's question using only information from the search results.
-
-Model Instructions:
-- You should provide concise answer to simple questions when the answer is directly contained in search results, but when comes to yes/no question, provide some details.
-- In case the question requires multi-hop reasoning, you should find relevant information from search results and summarize the answer based on relevant information with logical reasoning.
-- If the search results do not contain information that can answer the question, please state that you could not find an exact answer to the question, and if search results are completely irrelevant, say that you could not find an exact answer, then summarize search results.
-- Remember to add a citation to the end of your response using markers like %[1]%, %[2]%, %[3]%, etc for the corresponding passage supports the response.
-- DO NOT USE INFORMATION THAT IS NOT IN SEARCH RESULTS!
-
-User: $query$ Bot:
-Resources: Search Results: $search_results$ Bot:
-'''
-
-with open('instructions.txt', 'r') as file:
-    # Step 2: Read the contents
+with open('prompts/instructions.txt', 'r') as file:
     instruction = file.read()
 
 bedrock = boto3.client(
@@ -55,9 +34,6 @@ bedrock = boto3.client(
 def generate_random_string(length):
     letters = string.ascii_letters + string.digits
     return ''.join(random.choice(letters) for _ in range(length))
-
-# random_string = generate_random_string(10)
-# print(random_string)
 
 def create_agent_role(model_id, policy_name):
     role_name = f"AmazonBedrockExecutionRoleForAgents_{generate_random_string(10)}"
@@ -101,7 +77,7 @@ def create_agent_role(model_id, policy_name):
                         },
                         {
                             "Effect": "Allow",
-                            "Action": "bedrock:ListAgentAliases",
+                            "Action": "bedrock:Retrieve",
                             "Resource": "*"
                         }
                     ],
@@ -151,7 +127,7 @@ def create_agent(agent_name):
                 },
 
                 {
-                    'basePromptTemplate': prompt,
+                    'basePromptTemplate': kb,
                     'inferenceConfiguration': {
                         'maximumLength': 256,
                         'temperature': 0,
@@ -267,7 +243,7 @@ def update_agent(agent_id, agent_name):
                 },
 
                 {
-                    'basePromptTemplate': prompt,
+                    'basePromptTemplate': kb,
                     'inferenceConfiguration': {
                         'maximumLength': 256,
                         'temperature': 0,
