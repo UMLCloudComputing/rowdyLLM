@@ -49,7 +49,7 @@ model_kwargs =  {
 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell."
-         "Provide answers in the style of a tour guide. Here is some context:\n {context}"),
+         "Provide answers in the style of a tour guide. If the answer isn't in the search results, say 'I'm not sure what you mean'. Here is some context:\n {context}"),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{question}"),
     ]
