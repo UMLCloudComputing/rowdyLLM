@@ -48,7 +48,7 @@ model_kwargs =  {
 
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", "You are a helpful assistant."
+        ("system", "You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell."
          "Answer the question based only on the following context:\n {context}"),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{question}"),
@@ -135,13 +135,15 @@ def clear_chat_history():
     history.clear()
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 
-with st.sidebar:
-    st.title('Knowledge Bases for Amazon Bedrock and LangChain 🦜️🔗')
-    streaming_on = st.toggle('Streaming')
-    st.button('Clear Chat History', on_click=clear_chat_history)
-    st.divider()
-    st.write("History Logs")
-    st.write(history.messages)
+# with st.sidebar:
+#     st.title('Knowledge Bases for Amazon Bedrock and LangChain 🦜️🔗')
+#     streaming_on = st.toggle('Streaming')
+#     st.button('Clear Chat History', on_click=clear_chat_history)
+#     st.divider()
+#     st.write("History Logs")
+#     st.write(history.messages)
+
+streaming_on = True
 
 # Initialize session state for messages if not already present
 if "messages" not in st.session_state:
