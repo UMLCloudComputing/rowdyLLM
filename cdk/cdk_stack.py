@@ -5,7 +5,8 @@ from aws_cdk import (
     aws_iam as iam,
     aws_s3 as s3,
     aws_lambda as _lambda,
-    aws_apigateway as apigateway
+    aws_apigateway as apigateway,
+    Duration
 )
 from constructs import Construct
 import string
@@ -245,14 +246,35 @@ class CdkStack(Stack):
                 ],
             ),
         )
+
+        cfn_agent_alias = bedrock.CfnAgentAlias(self, f"MyCfnAgentAlias{construct_id}",
+            agent_alias_name=f"Production{construct_id}",
+            agent_id=cfn_agent.attr_agent_id,
+
+            # # the properties below are optional
+            # description="description",
+            # routing_configuration=[bedrock.CfnAgentAlias.AgentAliasRoutingConfigurationListItemProperty(
+            #     agent_version="agentVersion"
+            # )],
+            # tags={
+            #     "tags_key": "tags"
+            # }
+        )
         
         dockerFunc = _lambda.DockerImageFunction(
             scope=self,
             id=f"ID{construct_id}",
             function_name=construct_id,
+            environment= {
+                "AGENT_ID": cfn_agent.attr_agent_id,
+                "AGENT_ALIAS": cfn_agent_alias.attr_agent_alias_id,
+                "AWS_ID": os.getenv('AWS_ACCESS_KEY_ID'),
+                "AWS_KEY": os.getenv('AWS_SECRET_ACCESS_KEY')
+            },            
             code=_lambda.DockerImageCode.from_image_asset(
                 directory="src"
             ),
+            timeout=Duration.seconds(300)
         )
 
         api = apigateway.LambdaRestApi(self, f"API{construct_id}",

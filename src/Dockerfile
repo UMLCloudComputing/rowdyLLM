@@ -3,10 +3,10 @@ FROM public.ecr.aws/lambda/python:3.11
 # Copy requirements.txt
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
-RUN yum -y install git
+# RUN yum -y install git
 
 # Install the specified packages
-RUN pip install -r requirements.txt
+RUN pip install --upgrade -r requirements.txt
 
 # Copy all files in ./app
 COPY app/* ${LAMBDA_TASK_ROOT}
