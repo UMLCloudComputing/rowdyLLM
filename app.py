@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 import os
-
 import aws_cdk as cdk
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from cdk.cdk_stack import CdkStack
 
 
 app = cdk.App()
-CdkStack(app, "CdkStack1",
+app_name = os.getenv('APP_NAME')
+
+CdkStack(app, app_name,
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
