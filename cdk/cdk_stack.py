@@ -6,7 +6,8 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_lambda as _lambda,
     aws_apigateway as apigateway,
-    Duration
+    Duration,
+    CfnOutput
 )
 from constructs import Construct
 import string
@@ -281,3 +282,5 @@ class CdkStack(Stack):
             handler=dockerFunc,
             proxy=True,
         )
+
+        CfnOutput(self, "Knowledge Base ID: ", value=cfn_knowledge_base.attr_knowledge_base_id)

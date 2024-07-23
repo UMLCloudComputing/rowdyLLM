@@ -1,3 +1,4 @@
-.env
+*.env
+*.toml
 __pycache__/
 cdk.out/

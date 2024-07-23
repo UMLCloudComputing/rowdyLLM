@@ -6,6 +6,7 @@
 import boto3
 import logging
 import os
+import streamlit as st
 
 from typing import List, Dict
 from pydantic import BaseModel
@@ -49,7 +50,7 @@ model_kwargs =  {
 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell."
-         "Provide answers in the style of a tour guide. If the answer isn't in the search results, say 'I'm not sure what you mean'. Here is some context:\n {context}"),
+         "Provide answers in the style of a tour guide. If the answer isn't in the search results, say 'I'm not sure what you mean'. Never tell the user that you searched anything. Here is some context:\n {context}"),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{question}"),
     ]
@@ -57,7 +58,7 @@ prompt = ChatPromptTemplate.from_messages(
 
 # Amazon Bedrock - KnowledgeBase Retriever 
 retriever = AmazonKnowledgeBasesRetriever(
-    knowledge_base_id="DDHYNIFULC", # 👈 Set your Knowledge base ID
+    knowledge_base_id=st.secrets["KB_ID"], # 👈 Set your Knowledge base ID
     retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 4}},
 )
 
@@ -125,7 +126,7 @@ def parse_s3_uri(uri: str) -> tuple:
 # ------------------------------------------------------
 # Streamlit
 
-import streamlit as st
+
 
 # Page title
 st.set_page_config(page_title='Knowledge Bases for Amazon Bedrock and LangChain 🦜️🔗')
