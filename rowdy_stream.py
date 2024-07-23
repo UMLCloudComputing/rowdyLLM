@@ -27,14 +27,18 @@ logging.getLogger().setLevel(logging.ERROR) # reduce log level
 # ------------------------------------------------------
 # Amazon Bedrock - settings
 
-print(st.secrets["AWS_ACCESS_KEY_ID"])
-print(st.secrets["AWS_SECRET_ACCESS_KEY"])
-os.environ['AWS_ACCESS_KEY_ID'] = st.secrets["AWS_ACCESS_KEY_ID"]
-os.environ['AWS_SECRET_ACCESS_KEY'] = st.secrets["AWS_SECRET_ACCESS_KEY"]
-
 bedrock_runtime = boto3.client(
     service_name="bedrock-runtime",
     region_name="us-east-1",
+    aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
+)
+
+retrieval_runtime = boto3.client(
+    service_name="bedrock-agent-runtime",
+    region_name="us-east-1",
+    aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
 )
 
 model_id = "anthropic.claude-3-haiku-20240307-v1:0"
@@ -62,6 +66,7 @@ prompt = ChatPromptTemplate.from_messages(
 # Amazon Bedrock - KnowledgeBase Retriever 
 retriever = AmazonKnowledgeBasesRetriever(
     knowledge_base_id=st.secrets["KB_ID"], # 👈 Set your Knowledge base ID
+    client=retrieval_runtime,
     retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 4}},
 )
 
