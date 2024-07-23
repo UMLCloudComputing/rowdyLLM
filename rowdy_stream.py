@@ -29,6 +29,8 @@ logging.getLogger().setLevel(logging.ERROR) # reduce log level
 
 print(st.secrets["AWS_ACCESS_KEY_ID"])
 print(st.secrets["AWS_SECRET_ACCESS_KEY"])
+os.environ['AWS_ACCESS_KEY_ID'] = st.secrets["AWS_ACCESS_KEY_ID"]
+os.environ['AWS_SECRET_ACCESS_KEY'] = st.secrets["AWS_SECRET_ACCESS_KEY"]
 
 bedrock_runtime = boto3.client(
     service_name="bedrock-runtime",
