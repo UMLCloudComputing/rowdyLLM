@@ -1,8 +1,9 @@
 
 # Welcome to the RowdyLLM project!
 
-This is a subproject of RowdyBot, that attempts to separate out the LLM component of Rowdybot, due to the inherent complexities of setting up Amazon Bedrock Agents.
-The goal of this project is to allow the developer to setup the Amazon Bedrock Agent with just one command.
+RowdyLLM is an open source chatbot that uses Retrieval Augmented Generation, Amazon Bedrock Knowledge Bases, and Langchain that answers questions about the University of Massachusetts Lowell. It is designed to minimize hallucination and improve user confidence by citing its sources.
+
+## Setup
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
@@ -12,8 +13,6 @@ $ pip install -r requirements.txt
 ```
 
 
-
-## Setup
 Now you need to setup the proper environmental variables. This can be done by creating a .env file in your root directory.
 As of now, the only two you need are the Pinecone Vector Index, API Key, and the name of your CloudFormation Stack.
 
