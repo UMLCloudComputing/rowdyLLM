@@ -11,6 +11,9 @@ Install the requirements for this project here.
 $ pip install -r requirements.txt
 ```
 
+
+
+## Setup
 Now you need to setup the proper environmental variables. This can be done by creating a .env file in your root directory.
 As of now, the only two you need are the Pinecone Vector Index, API Key, and the name of your CloudFormation Stack.
 
@@ -24,12 +27,39 @@ PINECONE_API_KEY = <ARN of AWS Secret that store your Pinecone API Key>
 APP_NAME=<Cloudformation App Name>
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+At this point you can deploy through these commands
 
 ```
-$ cdk synth
+$ cdk bootstrap
+$ cdk deploy
 ```
 
+## Running the Streamlit App
+After deployment you should get this at the bottom of the output.
+```
+Outputs:
+CdkStack1.KnowledgeBaseID = .......
+Stack ARN:
+....
+```
+
+Copy the KnowledgeBaseID and paste it in the `.streamlit/secrets.toml` file as the value of the KB_ID variable like this
+
+```
+KB_ID = "......."
+```
+
+Make sure to also save your AWS Credentials in the `.streamlit/secrets.toml` file as well.
+
+```
+AWS_ACCESS_KEY_ID = "......."
+AWS_SECRET_ACCESS_KEY = "......."
+```
+
+Finally, run `streamlit run rowdy_stream.py` to start the streamlit app. The output will tell you the local address to access the app.
+
+
+## Additional Dependencies
 To add additional dependencies, for example other CDK libraries, just add
 them to your `setup.py` file and rerun the `pip install -r requirements.txt`
 command.
