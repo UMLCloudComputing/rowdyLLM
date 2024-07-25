@@ -150,20 +150,6 @@ class CdkStack(Stack):
 
         CfnOutput(self, "Knowledge Base ID: ", value=cfn_knowledge_base.attr_knowledge_base_id)
 
-        # Put cfn_knowledge_base.attr_knowledge_base_id in the environment variable .streamlit/secrets.toml
-        # If there is already a "KB_ID" in the file, update it
-
-        with open(".streamlit/secrets.toml", "a") as f:
-            lines = f.readlines()
-            kb_id = cfn_knowledge_base.attr_knowledge_base_id
-            for i in range(len(lines)):
-                if lines[i].startswith("KB_ID"):
-                    lines[i] = f'KB_ID = "{kb_id}"\n'
-                    break
-            else:
-                lines.append(f'KB_ID = "{kb_id}"\n')
-
-
 
 
         
