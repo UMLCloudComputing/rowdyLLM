@@ -19,6 +19,15 @@ from langchain_aws import ChatBedrock
 from langchain_aws import AmazonKnowledgeBasesRetriever
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 
+st.set_page_config(
+    page_title='RowdyLLM',
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
+)
+
 # ------------------------------------------------------
 # Log level
 
@@ -131,18 +140,10 @@ def parse_s3_uri(uri: str) -> tuple:
     key = "/".join(parts[1:])
     return bucket, key
 
-# ------------------------------------------------------
-# Streamlit
-
-
-
-# Page title
-st.set_page_config(page_title='Knowledge Bases for Amazon Bedrock and LangChain 🦜️🔗')
-
 # Clear Chat History function
 def clear_chat_history():
     history.clear()
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Ok I've cleared the chat history. Do you have any other questions?"}]
 
 # with st.sidebar:
 #     st.title('Knowledge Bases for Amazon Bedrock and LangChain 🦜️🔗')
@@ -156,7 +157,7 @@ streaming_on = True
 
 # Initialize session state for messages if not already present
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Ask me anything about UMass Lowell!"}]
 
 # Display chat messages
 for message in st.session_state.messages:
