@@ -4,5 +4,6 @@ langchain-core
 langchain-aws
 langchain-community
 pydantic
+python-dotenv
 aws-cdk-lib==2.144.0
 constructs>=10.0.0,<11.0.0
