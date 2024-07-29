@@ -200,6 +200,7 @@ if prompt := st.chat_input():
                     # else:
                     #     st.write(f"Source: {s3_uri} (Presigned URL generation failed)")
                     st.write("Score:", citation.metadata['score'])
+                    st.write("URL:", citation.metadata['source_metadata']['url'])
             # session_state append
             st.session_state.messages.append({"role": "assistant", "content": full_response})
     else:
