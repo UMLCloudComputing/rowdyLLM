@@ -7,7 +7,7 @@ import boto3
 import logging
 import os
 import streamlit as st
-
+from langchain_openai import ChatOpenAI
 from typing import List, Dict
 from pydantic import BaseModel
 from operator import itemgetter
@@ -27,6 +27,8 @@ st.set_page_config(
         'About': None
     }
 )
+
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # ------------------------------------------------------
 # Log level
@@ -50,15 +52,15 @@ retrieval_runtime = boto3.client(
     aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
 )
 
-model_id = "anthropic.claude-3-haiku-20240307-v1:0"
+# model_id = "anthropic.claude-3-haiku-20240307-v1:0"
 
-model_kwargs =  { 
-    "max_tokens": 2048,
-    "temperature": 0.0,
-    "top_k": 250,
-    "top_p": 1,
-    "stop_sequences": ["\n\nHuman"],
-}
+# model_kwargs =  { 
+#     "max_tokens": 2048,
+#     "temperature": 0.0,
+#     "top_k": 250,
+#     "top_p": 1,
+#     "stop_sequences": ["\n\nHuman"],
+# }
 
 # ------------------------------------------------------
 # LangChain - RAG chain with chat history
@@ -79,11 +81,13 @@ retriever = AmazonKnowledgeBasesRetriever(
     retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 4}},
 )
 
-model = ChatBedrock(
-    client=bedrock_runtime,
-    model_id=model_id,
-    model_kwargs=model_kwargs,
-)
+# model = ChatBedrock(
+#     client=bedrock_runtime,
+#     model_id=model_id,
+#     model_kwargs=model_kwargs,
+# )
+
+model = ChatOpenAI(model_name="gpt-4o")
 
 chain = (
     RunnableParallel({
