@@ -65,10 +65,16 @@ model_kwargs =  {
 # ------------------------------------------------------
 # LangChain - RAG chain with chat history
 
+
+prompt_text = '''
+You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell. Provide answers in the style of a tour guide. 
+Please only use answers that are present in the search results here:\n {context}
+Please only answer questions about the University of Massachusetts Lowell.
+'''
+
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", "You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell."
-         "Provide answers in the style of a tour guide. If the answer isn't in the search results, say 'I'm not sure what you mean'. Never tell the user that you searched anything. Here is some context:\n {context}"),
+        ("system", prompt_text),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{question}"),
     ]
@@ -78,7 +84,7 @@ prompt = ChatPromptTemplate.from_messages(
 retriever = AmazonKnowledgeBasesRetriever(
     knowledge_base_id=st.secrets["KB_ID"], # 👈 Set your Knowledge base ID
     client=retrieval_runtime,
-    retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 4}},
+    retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 12}},
 )
 
 match (st.secrets["MODEL"]):
