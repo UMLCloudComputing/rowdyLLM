@@ -83,7 +83,7 @@ retriever = AmazonKnowledgeBasesRetriever(
 
 match (st.secrets["MODEL"]):
     case "OPENAI":
-        model = ChatOpenAI(model_name="gpt-4o")
+        model = ChatOpenAI(model_name="gpt-4o-mini")
     case "ANTHROPIC":
         model = ChatBedrock(
             client=bedrock_runtime,
