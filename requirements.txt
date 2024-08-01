@@ -1,6 +1,7 @@
 boto3
 langchain
 langchain-core
+langchain-openai
 langchain-aws
 langchain-community
 pydantic
