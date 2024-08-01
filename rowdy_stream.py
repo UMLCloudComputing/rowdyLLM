@@ -7,7 +7,7 @@ import boto3
 import logging
 import os
 import streamlit as st
-
+from langchain_openai import ChatOpenAI
 from typing import List, Dict
 from pydantic import BaseModel
 from operator import itemgetter
@@ -27,6 +27,8 @@ st.set_page_config(
         'About': None
     }
 )
+
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # ------------------------------------------------------
 # Log level
@@ -63,10 +65,17 @@ model_kwargs =  {
 # ------------------------------------------------------
 # LangChain - RAG chain with chat history
 
+
+prompt_text = '''
+You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell. Provide answers in the style of a tour guide. 
+Please only use answers that are present in the search results here:\n {context}
+All users are full time students unless stated otherwise
+Please only answer questions about the University of Massachusetts Lowell.
+'''
+
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", "You are Rowdy the Riverhawk, a chatbot for the University of Massachusetts Lowell."
-         "Provide answers in the style of a tour guide. If the answer isn't in the search results, say 'I'm not sure what you mean'. Never tell the user that you searched anything. Here is some context:\n {context}"),
+        ("system", prompt_text),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{question}"),
     ]
@@ -76,14 +85,18 @@ prompt = ChatPromptTemplate.from_messages(
 retriever = AmazonKnowledgeBasesRetriever(
     knowledge_base_id=st.secrets["KB_ID"], # 👈 Set your Knowledge base ID
     client=retrieval_runtime,
-    retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 4}},
+    retrieval_config={"vectorSearchConfiguration": {"numberOfResults": 12}},
 )
 
-model = ChatBedrock(
-    client=bedrock_runtime,
-    model_id=model_id,
-    model_kwargs=model_kwargs,
-)
+match (st.secrets["MODEL"]):
+    case "OPENAI":
+        model = ChatOpenAI(model_name="gpt-4o-mini")
+    case "ANTHROPIC":
+        model = ChatBedrock(
+            client=bedrock_runtime,
+            model_id=model_id,
+            model_kwargs=model_kwargs,
+        )
 
 chain = (
     RunnableParallel({
@@ -117,44 +130,6 @@ class Citation(BaseModel):
 def extract_citations(response: List[Dict]) -> List[Citation]:
     return [Citation(page_content=doc.page_content, metadata=doc.metadata) for doc in response]
 
-# ------------------------------------------------------
-# S3 Presigned URL
-
-# def create_presigned_url(bucket_name: str, object_name: str, expiration: int = 300) -> str:
-#     """Generate a presigned URL to share an S3 object"""
-#     s3_client = boto3.client('s3')
-#     try:
-#         response = s3_client.generate_presigned_url('get_object',
-#                                                     Params={'Bucket': bucket_name,
-#                                                             'Key': object_name},
-#                                                     ExpiresIn=expiration)
-#     except NoCredentialsError:
-#         st.error("AWS credentials not available")
-#         return ""
-#     return response
-
-def parse_s3_uri(uri: str) -> tuple:
-    """Parse S3 URI to extract bucket and key"""
-    parts = uri.replace("s3://", "").split("/")
-    bucket = parts[0]
-    key = "/".join(parts[1:])
-    return bucket, key
-
-# Clear Chat History function
-def clear_chat_history():
-    history.clear()
-    st.session_state.messages = [{"role": "assistant", "content": "Ok I've cleared the chat history. Do you have any other questions?"}]
-
-# with st.sidebar:
-#     st.title('Knowledge Bases for Amazon Bedrock and LangChain 🦜️🔗')
-#     streaming_on = st.toggle('Streaming')
-#     st.button('Clear Chat History', on_click=clear_chat_history)
-#     st.divider()
-#     st.write("History Logs")
-#     st.write(history.messages)
-
-streaming_on = True
-
 # Initialize session state for messages if not already present
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Ask me anything about UMass Lowell!"}]
@@ -171,58 +146,26 @@ if prompt := st.chat_input():
         st.write(prompt)
 
     config = {"configurable": {"session_id": "any"}}
-    
-    if streaming_on:
-        # Chain - Stream
-        with st.chat_message("assistant"):
-            placeholder = st.empty()
-            full_response = ''
-            for chunk in chain_with_history.stream(
-                {"question" : prompt, "history" : history},
-                config
-            ):
-                if 'response' in chunk:
-                    full_response += chunk['response']
-                    placeholder.markdown(full_response)
-                else:
-                    full_context = chunk['context']
-            placeholder.markdown(full_response)
-            # Citations with S3 pre-signed URL
-            citations = extract_citations(full_context)
-            with st.expander("Show source details >"):
-                for citation in citations:
-                    st.write("Page Content:", citation.page_content)
-                    # s3_uri = citation.metadata['location']['s3Location']['uri']
-                    # bucket, key = parse_s3_uri(s3_uri)
-                    # presigned_url = create_presigned_url(bucket, key)
-                    # if presigned_url:
-                    #     st.markdown(f"Source: [{s3_uri}]({presigned_url})")
-                    # else:
-                    #     st.write(f"Source: {s3_uri} (Presigned URL generation failed)")
-                    st.write("Score:", citation.metadata['score'])
-                    st.write("URL:", citation.metadata['source_metadata']['url'])
-            # session_state append
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-    else:
-        # Chain - Invoke
-        with st.chat_message("assistant"):
-            response = chain_with_history.invoke(
-                {"question" : prompt, "history" : history},
-                config
-            )
-            st.write(response['response'])
-            # Citations with S3 pre-signed URL
-            citations = extract_citations(response['context'])
-            with st.expander("Show source details >"):
-                for citation in citations:
-                    st.write("Page Content:", citation.page_content)
-                    # s3_uri = citation.metadata['location']['s3Location']['uri']
-                    # bucket, key = parse_s3_uri(s3_uri)
-                    # presigned_url = create_presigned_url(bucket, key)
-                    # if presigned_url:
-                    #     st.markdown(f"Source: [{s3_uri}]({presigned_url})")
-                    # else:
-                    #     st.write(f"Source: {s3_uri} (Presigned URL generation failed)")
-                    st.write("Score:", citation.metadata['score'])
-            # session_state append
-            st.session_state.messages.append({"role": "assistant", "content": response['response']})
+    # Chain - Stream
+    with st.chat_message("assistant"):
+        placeholder = st.empty()
+        full_response = ''
+        for chunk in chain_with_history.stream(
+            {"question" : prompt, "history" : history},
+            config
+        ):
+            if 'response' in chunk:
+                full_response += chunk['response']
+                placeholder.markdown(full_response)
+            else:
+                full_context = chunk['context']
+        placeholder.markdown(full_response)
+        # Citations with S3 pre-signed URL
+        citations = extract_citations(full_context)
+        with st.expander("Show source details >"):
+            for citation in citations:
+                st.write("Page Content:", citation.page_content)
+                st.write("Score:", citation.metadata['score'])
+                st.write("URL:", citation.metadata['source_metadata']['url'])
+        # session_state append
+        st.session_state.messages.append({"role": "assistant", "content": full_response})

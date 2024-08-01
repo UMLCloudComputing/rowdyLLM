@@ -55,6 +55,17 @@ AWS_ACCESS_KEY_ID = "......."
 AWS_SECRET_ACCESS_KEY = "......."
 ```
 
+OpenAI is an alternative deployment option. Save your OpenAI API key as 
+```
+OPENAI_API_KEY = "sk-proj-<rest of your key>"
+```
+
+Now select the model you want to use
+
+```
+MODEL = "OPENAI | ANTHROPIC"
+```
+
 Finally, run `streamlit run rowdy_stream.py` to start the streamlit app. The output will tell you the local address to access the app.
 
 
