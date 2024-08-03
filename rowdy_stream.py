@@ -136,7 +136,7 @@ if "messages" not in st.session_state:
 
 # Display chat messages
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    with st.chat_message(message["role"], avatar="https://www.uml.edu/Images/logo_tcm18-196751.svg"):
         st.write(message["content"])
 
 # Chat Input - User Prompt 
@@ -147,7 +147,7 @@ if prompt := st.chat_input():
 
     config = {"configurable": {"session_id": "any"}}
     # Chain - Stream
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar="https://www.uml.edu/Images/logo_tcm18-196751.svg"):
         placeholder = st.empty()
         full_response = ''
         for chunk in chain_with_history.stream(
@@ -156,11 +156,11 @@ if prompt := st.chat_input():
         ):
             if 'response' in chunk:
                 full_response += chunk['response']
-                placeholder.markdown(full_response)
+                placeholder.markdown(full_response.replace('$', r'\$'))
             else:
                 full_context = chunk['context']
-        placeholder.markdown(full_response)
-        # Citations with S3 pre-signed URL
+        placeholder.markdown(full_response.replace('$', r'\$'))
+
         citations = extract_citations(full_context)
         with st.expander("Show source details >"):
             for citation in citations:
