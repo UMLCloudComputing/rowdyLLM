@@ -136,8 +136,12 @@ if "messages" not in st.session_state:
 
 # Display chat messages
 for message in st.session_state.messages:
-    with st.chat_message(message["role"], avatar="https://www.uml.edu/Images/logo_tcm18-196751.svg"):
-        st.write(message["content"])
+    if message["role"] == "assistant":
+        with st.chat_message(message["role"], avatar="https://www.uml.edu/Images/logo_tcm18-196751.svg"):
+            st.write(message["content"])
+    else:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
 
 # Chat Input - User Prompt 
 if prompt := st.chat_input():
